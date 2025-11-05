@@ -1,0 +1,15 @@
+RSA vs AES — Performance & Use Cases (Week 4)
+
+RSA (asymmetric):
+ - Uses a public/private key pair.
+ - Much slower; suitable for encrypting small data or keys.
+ - Commonly used for digital signatures and key exchange.
+
+AES-256 (symmetric):
+ - Uses one shared secret key.
+ - Extremely fast; ideal for encrypting large files.
+ - Used for real-time data encryption and storage security.
+
+In practice:
+ - Systems use RSA to protect a randomly generated AES key.
+ - AES handles the bulk data encryption.
