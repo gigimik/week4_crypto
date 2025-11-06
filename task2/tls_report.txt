@@ -1,0 +1,48 @@
+TLS Report — Week 4
+
+Target Site: www.github.com
+Date: 2025-11-06
+Tooling: OpenSSL 3.2.1 (Kali Linux), Wireshark 4.x
+
+1) Observed TLS Parameters
+- Protocol: TLS 1.3
+- Cipher Suite: TLS_AES_128_GCM_SHA256
+- SNI/Hostname: www.github.com
+- Certificate Chain: 3 certificates (leaf + Sectigo CA + USERTrust Root)
+
+2) Certificate Details (from openssl x509)
+- Subject: CN = github.com
+- Issuer: CN = Sectigo ECC Domain Validation Secure Server CA, O = Sectigo Limited, L = Salford, GB
+- Validity:
+  - Not Before : Feb  5  00:00:00  2025 GMT
+  - Not After  : Feb  5  23:59:59  2026 GMT
+- SHA-256 Fingerprint: 88:B8:81:87:68:33:87:39:42:04:5A:8D:F8:F0:62:19:E0:06:02:E8:B:C8:43:84:C7:AB:C2:4F:18:37:9C:87:F5
+- Signature Algorithm: ecdsa-with-SHA256
+- Public Key Type / Size: EC P-256 (256 bit)
+
+3) TLS Handshake Explanation (TLS 1.3)
+- ClientHello → browser proposes TLS 1.3, cipher suites (AES-GCM, ChaCha20-Poly1305), SNI = github.com.  
+- ServerHello → server selects TLS 1.3 and TLS_AES_128_GCM_SHA256 cipher suite, sends its key share.  
+- EncryptedExtensions, Certificate, CertificateVerify → server authenticates itself via Sectigo CA.  
+- Finished → both parties verify handshake integrity, then application data is encrypted.
+
+4) Protection Against MITM Attacks
+- Certificate Validation → browser verifies CA chain to USERTrust Root CA.  
+- Hostname Check → SNI must match CN/SAN = github.com.  
+- Ephemeral ECDHE → provides forward secrecy (ECDHE key exchange seen as x25519 or prime256v1).  
+- AEAD Cipher → AES-GCM protects confidentiality and integrity.  
+- TLS 1.3 Handshake Encryption → prevents certificate interception or downgrade attacks.
+
+5) TLS Use in HTTPS
+- Authentication → server identity proven via trusted CA chain.  
+- Confidentiality → HTTP data encrypted after handshake.  
+- Integrity → AEAD detects tampering.  
+- Forward Secrecy → compromising keys later cannot reveal past sessions.
+
+Screenshots / Artifacts Included:
+- s_client_output.png (OpenSSL output)  
+- x509_details.png (Certificate fields)  
+- wireshark_serverhello.png (ServerHello)  
+- wireshark_clienthello.png (optional if you captured it)  
+- wireshark_handshake_list.png (optional)  
+
